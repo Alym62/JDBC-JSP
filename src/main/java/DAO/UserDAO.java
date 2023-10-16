@@ -1,80 +1,122 @@
 package DAO;
 
-import conexao.Conexao;
 import entity.User;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
 import java.util.ArrayList;
 
 public class UserDAO {
-
-    Conexao conexao = new Conexao();
-
     // CRUD CREATE
-    public void inserirUser(User user){
-
-        String sqlCreate = "INSERT INTO registro (nome, profissao, idade) VALUES (?, ?, ?)";
+    public void inserirUser(User user) {
+        SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
 
         try {
-            Connection conn = conexao.conexao();
-            PreparedStatement ps = conn.prepareStatement(sqlCreate);
-            ps.setString(1, user.getNome());
-            ps.setString(2, user.getProfissao());
-            ps.setInt(3, user.getIdade());
-
-            ps.executeUpdate();
-            ps.close();
-
-        } catch (Exception e){
-            System.out.println(e);
+            session.save(user);
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+            sessionFactory.close();
         }
+
     }
 
     // CRUD READ
     public ArrayList<User> listDeUsuarios() {
-        ArrayList<User> usuarios = new ArrayList<>();
-
-        String sqlRead = "SELECT * FROM registro ORDER BY nome";
+        SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
 
         try {
-            Connection conn = conexao.conexao();
-            PreparedStatement ps = conn.prepareStatement(sqlRead);
-            ResultSet rs = ps.executeQuery();
+            ArrayList<User> users = (ArrayList<User>)
+                    session.createQuery("FROM registro", User.class)
+                            .getResultList();
 
-            while (rs.next()){
-                Integer cod_registro = Integer.parseInt(rs.getString(1));
-                String nome = rs.getString(2);
-                String profissao = rs.getString(3);
-                Integer idade = Integer.parseInt(rs.getString(4));
+            transaction.commit();
 
-                usuarios.add(new User(cod_registro, nome, profissao, idade));
+            return users;
+
+        } catch (HibernateException e) {
+            System.out.println(e);
+
+            return null;
+
+        } finally {
+            session.close();
+            sessionFactory.close();
+        }
+    }
+
+    // CRUD SELECT
+    public User selectUser(User user){
+        SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+
+        try {
+            user = session.get(User.class, user.getCod_registro());
+            transaction.commit();
+        } catch (HibernateException e){
+            if(transaction != null){
+                transaction.rollback();
             }
 
-            conn.close();
-            return usuarios;
+            e.printStackTrace();
+        }
 
-        } catch (Exception e){
-            System.out.println(e);
-            return null;
+        return user;
+    }
+
+    // CRUD UPDATE
+    public void updateUser(User user){
+        SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
+
+        try {
+            session.update(user);
+            transaction.commit();
+        } catch (HibernateException e){
+            if(transaction != null){
+                transaction.rollback();
+            }
+
+            e.printStackTrace();
+        } finally {
+            session.close();
+            sessionFactory.close();
         }
     }
 
     // CRUD DELETE
-    public void deletarUsuariosDB(User user){
-        String sqlDelete = "DELETE FROM registro WHERE cod_registro=?";
+    public void deletarUsuariosDB(User user) {
+        SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction transaction = session.beginTransaction();
 
         try {
-            Connection conn = conexao.conexao();
-            PreparedStatement ps = conn.prepareStatement(sqlDelete);
-            ps.setInt(1, user.getCod_registro());
-            ps.executeUpdate();
+            if (user != null) {
+                session.delete(user);
+            }
 
-            conn.close();
+            transaction.commit();
 
-        } catch (Exception e){
-            System.out.println(e);
+        } catch (HibernateException e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+
+            e.printStackTrace();
+        } finally {
+            session.close();
+            sessionFactory.close();
         }
     }
 

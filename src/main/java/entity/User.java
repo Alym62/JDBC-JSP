@@ -1,8 +1,16 @@
 package entity;
 
-public class User {
+import jakarta.persistence.*;
 
-    private Integer cod_registro;
+import java.io.Serializable;
+import java.util.Objects;
+
+@Entity(name = "registro")
+@Table(name = "registro")
+public class User{
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long cod_registro;
     private String nome;
     private String profissao;
     private Integer idade;
@@ -11,7 +19,7 @@ public class User {
         super();
     }
 
-    public User(Integer cod_registro, String nome, String profissao, Integer idade){
+    public User(Long cod_registro, String nome, String profissao, Integer idade){
         super();
         this.cod_registro = cod_registro;
         this.nome = nome;
@@ -19,11 +27,11 @@ public class User {
         this.idade = idade;
     }
 
-    public Integer getCod_registro() {
+    public Long getCod_registro() {
         return cod_registro;
     }
 
-    public void setCod_registro(Integer cod_registro) {
+    public void setCod_registro(Long cod_registro) {
         this.cod_registro = cod_registro;
     }
 
@@ -50,4 +58,5 @@ public class User {
     public void setIdade(Integer idade) {
         this.idade = idade;
     }
+
 }
