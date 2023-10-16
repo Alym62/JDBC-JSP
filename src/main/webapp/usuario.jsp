@@ -4,7 +4,7 @@
 <%@ page import="java.util.ArrayList" %>
 
 <%
-    ArrayList<User> list = (ArrayList<User>) request.getAttribute("usuarios");
+    ArrayList<User> list = (ArrayList<User>) request.getAttribute("users");
 %>
 
 <!DOCTYPE html>
@@ -27,7 +27,8 @@
                     <th>Nome</th>
                     <th>Profissão</th>
                     <th>Idade</th>
-                    <th>Deletar</>
+                    <th>Deletar</th>
+                    <th>Editar</th>
                 </tr>
             </thead>
             <tbody>
@@ -37,6 +38,7 @@
                         <td><%= list.get(i).getNome() %></td>
                         <td><%= list.get(i).getProfissao() %></td>
                         <td><%= list.get(i).getIdade() %></td>
+                        <td><a href="selectUsuario?cod_registro=<%= list.get(i).getCod_registro() %>">Editar</a></td>
                         <td><a href="javascript: confirmarExcluir(<%= list.get(i).getCod_registro() %>)">Excluir</a></td>
                     </tr>
                 <% } %>
