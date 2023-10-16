@@ -54,6 +54,7 @@ public class UserDAO {
         }
     }
 
+    // PRECISA SER ARRUMADA
     // CRUD SELECT
     public User selectUser(User user){
         SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml").buildSessionFactory();
